@@ -60,6 +60,54 @@ app
     }
   });
 
+app
+  .route("/articles/:articleTitle")
+  .get(async (req, res) => {
+    const articleTitle = req.params.articleTitle;
+    const articleStoreTitle = await Article.findOne({ title: articleTitle });
+
+    if (articleStoreTitle) {
+      res.json(articleStoreTitle);
+    } else {
+      res.status(404).json({
+        message: "No article found with title " + articleTitle,
+      });
+    }
+  })
+  .put(async (req, res) => {
+    const { title, content } = req.body;
+    const updateResult = await Article.updateOne(
+      { title: req.params.articleTitle },
+      { title, content }
+    );
+
+    if (updateResult) {
+      // res.json(updateResult);
+      res.status(200).json({
+        message: "Article updated successfully",
+      });
+    } else {
+      res.status(404).json({
+        message: "No article found with title " + req.params.articleTitle,
+      });
+    }
+  })
+  .delete(async (req, res) => {
+    const deleteResult = await Article.deleteOne({
+      title: req.params.articleTitle,
+    });
+
+    if (deleteResult.deletedCount === 1) {
+      res.status(200).json({
+        message: "Article deleted successfully",
+      });
+    } else {
+      res.status(404).json({
+        message: "No article found with title " + req.params.articleTitle,
+      });
+    }
+  });
+
 app.listen(port, () => {
   console.log(`Successfully Connected to Port ${port}`);
 });
